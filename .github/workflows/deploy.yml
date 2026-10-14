@@ -1,0 +1,58 @@
+name: Esteira CD - Seminario
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  testes:
+    name: 🧪 Rodar Testes (CI)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Executar testes automatizados
+        run: npm run test
+
+  deploy:
+    name: 🚀 Deploy no Vercel (CD)
+    runs-on: ubuntu-latest
+    needs: testes
+    # 👇 ESTA É A TRAVA DE CONTINUOUS DELIVERY!
+    # Na hora da apresentação, para virar Continuous Deployment, apague a linha abaixo:
+    environment: production-approval
+    
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalar Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Puxar Informações do Vercel
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build do Projeto
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Publicar Produção
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
