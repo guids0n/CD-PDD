@@ -28,9 +28,8 @@ jobs:
     name: 🚀 Deploy no Vercel (CD)
     runs-on: ubuntu-latest
     needs: testes
-    # 👇 ESTA É A TRAVA DE CONTINUOUS DELIVERY!
-    # Na hora da apresentação, para virar Continuous Deployment, apague a linha abaixo:
-    environment: production-approval
+
+    #environment: production-approval
     
     steps:
       - name: Checkout do código
